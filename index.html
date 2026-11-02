@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Don't Forget</title>
+  <meta name="description" content="Save and organize useful links, videos and articles so you can find them later.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===================== Auth Screen ===================== -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-badge"><i data-lucide="bookmark"></i></span>
+        <div>
+          <h1>Don't <strong>Forget</strong></h1>
+          <p>Save links, videos and articles. Find them later.</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab is-active" data-auth-view="signin">Sign In</button>
+        <button type="button" class="auth-tab" data-auth-view="signup">Sign Up</button>
+      </div>
+
+      <!-- Sign In -->
+      <form id="signInForm" class="auth-form" novalidate>
+        <div class="field">
+          <label for="siEmail">Email</label>
+          <input type="email" id="siEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="siPassword">Password</label>
+          <input type="password" id="siPassword" placeholder="Your password" autocomplete="current-password" required>
+        </div>
+        <div class="auth-row">
+          <button type="button" class="auth-link" data-auth-view="forgot">Forgot password?</button>
+        </div>
+        <div class="auth-alert" id="signInAlert" hidden></div>
+        <button type="submit" class="btn btn-primary auth-submit" id="signInBtn">Sign In</button>
+      </form>
+
+      <!-- Sign Up -->
+      <form id="signUpForm" class="auth-form" hidden novalidate>
+        <div class="field">
+          <label for="suEmail">Email</label>
+          <input type="email" id="suEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="suPassword">Password</label>
+          <input type="password" id="suPassword" placeholder="At least 6 characters" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="suPassword2">Confirm Password</label>
+          <input type="password" id="suPassword2" placeholder="Repeat your password" autocomplete="new-password" required>
+        </div>
+        <div class="auth-alert" id="signUpAlert" hidden></div>
+        <div class="auth-alert auth-alert-success" id="signUpSuccess" hidden></div>
+        <button type="submit" class="btn btn-primary auth-submit" id="signUpBtn">Create Account</button>
+      </form>
+
+      <!-- Forgot Password -->
+      <form id="forgotForm" class="auth-form" hidden novalidate>
+        <p class="auth-hint">Enter your email and we'll send you a link to reset your password.</p>
+        <div class="field">
+          <label for="fpEmail">Email</label>
+          <input type="email" id="fpEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="auth-alert" id="forgotAlert" hidden></div>
+        <div class="auth-alert auth-alert-success" id="forgotSuccess" hidden></div>
+        <button type="submit" class="btn btn-primary auth-submit" id="forgotBtn">Send Reset Link</button>
+        <div class="auth-row">
+          <button type="button" class="auth-link" data-auth-view="signin">&larr; Back to sign in</button>
+        </div>
+      </form>
+
+      <!-- Set New Password (from recovery link) -->
+      <form id="resetForm" class="auth-form" hidden novalidate>
+        <p class="auth-hint">Choose a new password for your account.</p>
+        <div class="field">
+          <label for="npPassword">New Password</label>
+          <input type="password" id="npPassword" placeholder="At least 6 characters" autocomplete="new-password" required>
+        </div>
+        <div class="field">
+          <label for="npPassword2">Confirm New Password</label>
+          <input type="password" id="npPassword2" placeholder="Repeat your password" autocomplete="new-password" required>
+        </div>
+        <div class="auth-alert" id="resetAlert" hidden></div>
+        <button type="submit" class="btn btn-primary auth-submit" id="resetBtn">Update Password</button>
+      </form>
+
+      <p class="auth-note">Secured with Supabase Auth</p>
+    </div>
+  </div>
+
+  <div class="app-shell" hidden>
+
+    <!-- ===================== Sidebar ===================== -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-badge"><i data-lucide="bookmark"></i></span>
+        <span class="brand-text">Don't <strong>Forget</strong></span>
+      </div>
+
+      <p class="sidebar-caption">Library</p>
+      <nav class="nav" id="mainNav">
+        <button type="button" class="nav-item is-active" data-nav="dashboard">
+          <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="all">
+          <i data-lucide="library"></i><span>All Saved</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="categories">
+          <i data-lucide="folder"></i><span>Categories</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="favorites">
+          <i data-lucide="star"></i><span>Favorites</span>
+          <span class="nav-badge" id="badgeFavorites" hidden>0</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="review">
+          <i data-lucide="calendar-clock"></i><span>To Review</span>
+          <span class="nav-badge" id="badgeReview" hidden>0</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="archived">
+          <i data-lucide="archive"></i><span>Archived</span>
+          <span class="nav-badge" id="badgeArchived" hidden>0</span>
+        </button>
+
+        <p class="sidebar-caption">General</p>
+        <button type="button" class="nav-item" data-nav="settings">
+          <i data-lucide="settings"></i><span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="sidebar-user">
+          <span class="user-avatar"><i data-lucide="user"></i></span>
+          <span class="user-email" id="userEmail">Signed in</span>
+        </div>
+        <button type="button" class="signout-btn" id="signOutBtn">
+          <i data-lucide="log-out"></i> Sign out
+        </button>
+        <span>Cloud sync · Supabase</span>
+        <span>Your data is saved to your account</span>
+      </div>
+    </aside>
+
+    <!-- ===================== Main ===================== -->
+    <div class="main">
+      <header class="topbar">
+        <button type="button" class="icon-btn" id="menuBtn" aria-label="Open menu">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <div class="topbar-title">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Your saved links at a glance</p>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" class="icon-btn" id="randomBtn" title="Show a random item" aria-label="Show a random item">
+            <i data-lucide="shuffle"></i>
+          </button>
+          <button type="button" class="icon-btn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+            <i data-lucide="moon"></i>
+          </button>
+          <button type="button" class="btn btn-primary" id="addBtn">
+            <i data-lucide="plus"></i><span>Add New</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- ===================== Dashboard ===================== -->
+        <section class="page is-active" id="page-dashboard">
+          <div class="stats-grid" id="statsGrid"></div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Recently Saved</h2>
+              <button type="button" class="btn btn-ghost" data-goto="all">
+                View all <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+            <div class="cards-grid" id="recentList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Upcoming Review Dates</h2>
+              <button type="button" class="btn btn-ghost" data-goto="review">
+                To Review <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+            <div class="rows" id="upcomingList"></div>
+          </div>
+        </section>
+
+        <!-- ===================== All Saved ===================== -->
+        <section class="page" id="page-all" hidden>
+          <div class="toolbar">
+            <label class="search">
+              <i data-lucide="search"></i>
+              <input type="search" id="searchInput" placeholder="Search title, URL or description..." autocomplete="off">
+            </label>
+
+            <select id="typeFilter" class="select" aria-label="Filter by content type">
+              <option value="all">All types</option>
+              <option value="website">Website</option>
+              <option value="video">Video</option>
+              <option value="article">Article</option>
+              <option value="other">Other Link</option>
+            </select>
+
+            <select id="categoryFilter" class="select" aria-label="Filter by category">
+              <option value="all">All categories</option>
+            </select>
+
+            <div class="view-toggle">
+              <button type="button" class="icon-btn is-active" id="gridViewBtn" title="Grid view" aria-label="Grid view">
+                <i data-lucide="layout-grid"></i>
+              </button>
+              <button type="button" class="icon-btn" id="listViewBtn" title="List view" aria-label="List view">
+                <i data-lucide="list"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="results-meta"><span id="allCount">0 items</span></div>
+          <div id="allList"></div>
+        </section>
+
+        <!-- ===================== Categories ===================== -->
+        <section class="page" id="page-categories" hidden>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Your Categories</h2>
+              <button type="button" class="btn btn-primary" data-action="new-category">
+                <i data-lucide="folder-plus"></i> New Category
+              </button>
+            </div>
+            <div class="cat-grid" id="catGrid"></div>
+          </div>
+        </section>
+
+        <!-- ===================== Favorites ===================== -->
+        <section class="page" id="page-favorites" hidden>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Favorites</h2>
+              <span class="panel-note" id="favCount">0 items</span>
+            </div>
+            <div id="favList"></div>
+          </div>
+        </section>
+
+        <!-- ===================== To Review ===================== -->
+        <section class="page" id="page-review" hidden>
+          <div id="reviewPage"></div>
+        </section>
+
+        <!-- ===================== Archived ===================== -->
+        <section class="page" id="page-archived" hidden>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Archived Items</h2>
+              <span class="panel-note" id="archCount">0 items</span>
+            </div>
+            <div id="archList"></div>
+          </div>
+        </section>
+
+        <!-- ===================== Settings ===================== -->
+        <section class="page" id="page-settings" hidden>
+          <div class="settings-grid">
+            <div class="panel">
+              <div class="panel-head"><h2>Appearance</h2></div>
+              <p class="settings-text">Choose how Don't Forget looks on this device.</p>
+              <div class="theme-options">
+                <button type="button" class="theme-card" data-theme-set="light">
+                  <i data-lucide="sun"></i>
+                  <span class="theme-name">Light</span>
+                  <span class="theme-desc">Cream &amp; beige</span>
+                </button>
+                <button type="button" class="theme-card" data-theme-set="dark">
+                  <i data-lucide="moon"></i>
+                  <span class="theme-name">Dark</span>
+                  <span class="theme-desc">Warm brown night</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h2>Account Data</h2></div>
+              <p class="settings-text" id="dataStats">0 items · 0 categories</p>
+              <p class="settings-text settings-muted">
+                Your items and categories are stored in your account and are
+                available whenever you sign in on any device.
+              </p>
+              <div class="settings-actions">
+                <button type="button" class="btn" id="resetDataBtn">
+                  <i data-lucide="refresh-cw"></i> Reset sample data
+                </button>
+                <button type="button" class="btn btn-danger" id="clearDataBtn">
+                  <i data-lucide="trash-2"></i> Clear all data
+                </button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h2>Import from this browser</h2></div>
+              <p class="settings-text settings-muted">
+                Move the links and categories saved in this browser into your
+                account. Your browser data is never deleted or changed.
+              </p>
+              <button type="button" class="btn btn-primary" id="migrateBtn" lang="ar" dir="rtl">
+                نقل بياناتي إلى حسابي
+              </button>
+
+              <div class="migrate-box" id="migratePreview" hidden>
+                <p class="migrate-counts" id="migrateCounts"></p>
+                <p class="settings-text settings-muted" id="migrateWarnings"></p>
+                <div class="settings-actions">
+                  <button type="button" class="btn btn-primary" id="migrateConfirmBtn">
+                    <i data-lucide="check"></i> Confirm import
+                  </button>
+                  <button type="button" class="btn" id="migrateCancelBtn">Cancel</button>
+                </div>
+              </div>
+
+              <div class="migrate-status" id="migrateStatus" hidden></div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h2>About</h2></div>
+              <p class="settings-text">
+                <strong>Don't Forget</strong> helps you save and organize useful links,
+                websites, videos and articles so you can find them later.
+              </p>
+              <p class="settings-text settings-muted">Version 1.0 · Phase 3 · English</p>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================== Add / Edit Item Modal ===================== -->
+  <div class="modal-backdrop" id="itemModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
+      <div class="modal-head">
+        <h2 id="itemModalTitle">Add New Item</h2>
+        <button type="button" class="icon-btn" data-close="itemModal" aria-label="Close">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="itemForm" novalidate>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field field-span-2">
+              <label for="fTitle">Title <span class="req">*</span></label>
+              <input type="text" id="fTitle" placeholder="e.g. CSS Flexbox Guide" required>
+            </div>
+
+            <div class="field field-span-2">
+              <label for="fUrl">URL <span class="req">*</span></label>
+              <input type="text" id="fUrl" placeholder="https://example.com" required>
+            </div>
+
+            <div class="field field-span-2">
+              <label for="fDesc">Description <span class="opt">(optional)</span></label>
+              <textarea id="fDesc" rows="3" placeholder="Why is this worth keeping?"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="fType">Content Type</label>
+              <select id="fType" class="select">
+                <option value="website">Website</option>
+                <option value="video">Video</option>
+                <option value="article">Article</option>
+                <option value="other">Other Link</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="fCat">Category</label>
+              <select id="fCat" class="select"></select>
+            </div>
+
+            <div class="field field-span-2">
+              <label for="fTags">Tags <span class="opt">(comma separated)</span></label>
+              <input type="text" id="fTags" placeholder="design, tutorial, javascript">
+            </div>
+
+            <div class="field">
+              <label for="fPriority">Priority</label>
+              <select id="fPriority" class="select">
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="fReview">Review Date <span class="opt">(optional)</span></label>
+              <input type="date" id="fReview" class="select">
+            </div>
+
+            <div class="field field-span-2">
+              <label class="check">
+                <input type="checkbox" id="fFav">
+                <span>Mark as favorite</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn" data-close="itemModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check"></i> Save Item
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Category Modal ===================== -->
+  <div class="modal-backdrop" id="categoryModal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="catModalTitle">
+      <div class="modal-head">
+        <h2 id="catModalTitle">New Category</h2>
+        <button type="button" class="icon-btn" data-close="categoryModal" aria-label="Close">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <form id="categoryForm" novalidate>
+        <div class="modal-body">
+          <div class="field">
+            <label for="fCatName">Category Name <span class="req">*</span></label>
+            <input type="text" id="fCatName" placeholder="e.g. Work" required>
+          </div>
+          <div class="field">
+            <label for="fCatColor">Color</label>
+            <div class="color-row">
+              <input type="color" id="fCatColor" value="#a97c50">
+              <div class="swatches" id="colorSwatches"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn" data-close="categoryModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check"></i> Save Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== Random Discovery Modal ===================== -->
+  <div class="modal-backdrop" id="randomModal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="randomTitle">
+      <div class="modal-head">
+        <h2 id="randomTitle"><i data-lucide="shuffle"></i> Random Discovery</h2>
+        <button type="button" class="icon-btn" data-close="randomModal" aria-label="Close">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="randomBody"></div>
+      <div class="modal-foot">
+        <button type="button" class="btn" id="randomAgain">
+          <i data-lucide="refresh-cw"></i> Another one
+        </button>
+        <button type="button" class="btn btn-primary" id="randomOpen">
+          <i data-lucide="external-link"></i> Open Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- ===================== Cloud loading / error overlay ===================== -->
+  <div class="app-loading" id="appLoading" hidden>
+    <div class="app-loading-card">
+      <span class="spinner" id="appSpinner" aria-hidden="true"></span>
+      <p id="appLoadingText">Loading your library…</p>
+      <div class="app-loading-actions" id="appLoadingActions" hidden>
+        <button type="button" class="btn btn-primary" id="appRetryBtn">
+          <i data-lucide="refresh-cw"></i> Try again
+        </button>
+        <button type="button" class="btn" id="appSignOutBtn">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/lucide.js"></script>
+  <script src="assets/supabase.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/supabase-auth.js"></script>
+  <script src="js/auth-ui.js"></script>
+  <script src="js/migrate.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
